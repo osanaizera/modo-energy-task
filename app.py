@@ -167,15 +167,16 @@ st.markdown(
 
     /* Tabs */
     .stTabs [data-baseweb="tab-list"] {{
-        gap: 8px;
+        gap: 24px;
         background: {COLORS["surface"]};
         border-radius: 8px;
-        padding: 4px;
+        padding: 6px 12px;
     }}
     .stTabs [data-baseweb="tab"] {{
         color: {COLORS["text_muted"]};
         border-radius: 6px;
         font-weight: 500;
+        padding: 10px 20px;
     }}
     .stTabs [aria-selected="true"] {{
         background: {COLORS["surface2"]} !important;
