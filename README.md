@@ -1,6 +1,13 @@
 # Brazil BESS Behind-the-Meter Viability Simulator
 
-**Modo Energy Take-Home Task** — Filip Osanai
+**Modo Energy Take-Home Task** — Filipe Osanai
+
+![Python](https://img.shields.io/badge/Python-3.10+-3776AB?logo=python&logoColor=white)
+![Streamlit](https://img.shields.io/badge/Streamlit-1.30+-FF4B4B?logo=streamlit&logoColor=white)
+![Tests](https://img.shields.io/badge/tests-54%20passed-4ade80)
+
+<!-- Screenshot placeholder — replace with actual dashboard screenshot -->
+<!-- ![Dashboard Screenshot](docs/screenshot.png) -->
 
 ## Problem Statement
 
@@ -32,6 +39,46 @@ Running the simulator with default parameters (1 MW / 2 MWh, R$ 3,500/kWh CAPEX,
 
 The **Northeast region** (COELBA, EQUATORIAL MA/PA/PI) consistently shows the highest spreads among mainstream distributors, making it the most attractive region for BTM BESS deployment.
 
+## How to Run
+
+```bash
+# Clone the repository
+git clone https://github.com/osanaizera/modo-energy-task.git
+cd modo-energy-task
+
+# Quick start
+make install
+make run          # starts Streamlit dashboard
+
+# Run tests
+make test         # 54 tests, ~0.4s
+```
+
+Or manually:
+
+```bash
+pip install -r requirements.txt
+streamlit run app.py
+```
+
+A **sample dataset** (14 distributors, 252 rows) is bundled for instant offline demo. The full ANEEL dataset (~78 MB, 116 distributors) downloads automatically on first run.
+
+Requirements: Python 3.10+
+
+## Dashboard Sections
+
+### 1. Opportunity Map
+Top distributors ranked by peak/off-peak spread, with payback-colored bar chart and scatter plot showing the relationship between spread and payback period.
+
+### 2. Distributor Deep Dive
+Detailed analysis of a selected distributor: tariff breakdown (TUSD vs. TE, peak vs. off-peak), revenue composition (energy arbitrage vs. demand savings), and key financial metrics.
+
+### 3. Financial Simulation
+Cumulative cash flow over battery lifetime with breakeven visualization, plus sensitivity heatmap showing how payback varies with CAPEX and spread.
+
+### 4. Market Context
+Explanation of the Brazilian electricity tariff system for non-Brazilian audiences — Group A/B consumers, Verde vs. Azul modalities, TUSD/TE components, and why BESS captures value. Includes an interactive chart showing how falling CAPEX unlocks new distributor markets.
+
 ## How It Works
 
 1. Downloads and processes **homologated tariff data** from ANEEL Open Data (all 90+ distributors)
@@ -50,36 +97,6 @@ The **Northeast region** (COELBA, EQUATORIAL MA/PA/PI) consistently shows the hi
 - ~311,000 records covering all tariff resolutions since 2010
 - Updated as new tariff resolutions are published
 - Filtered to: Tarifa de Aplicacao, Group A (A1-A4), Horossazonal modalities (Azul/Verde)
-
-## How to Run
-
-```bash
-# Clone the repository
-git clone https://github.com/YOUR_USERNAME/modo-energy-task.git
-cd modo-energy-task
-
-# Install dependencies
-pip install -r requirements.txt
-
-# Run the dashboard (data downloads automatically on first run, ~78 MB)
-streamlit run app.py
-```
-
-Requirements: Python 3.10+
-
-## Dashboard Sections
-
-### 1. Opportunity Map
-Top distributors ranked by peak/off-peak spread, with payback-colored bar chart and scatter plot showing the relationship between spread and payback period.
-
-### 2. Distributor Deep Dive
-Detailed analysis of a selected distributor: tariff breakdown (TUSD vs. TE, peak vs. off-peak), revenue composition (energy arbitrage vs. demand savings), and key financial metrics.
-
-### 3. Financial Simulation
-Cumulative cash flow over battery lifetime with breakeven visualization, plus sensitivity heatmap showing how payback varies with CAPEX and spread.
-
-### 4. Market Context
-Explanation of the Brazilian electricity tariff system for non-Brazilian audiences — Group A/B consumers, Verde vs. Azul modalities, TUSD/TE components, and why BESS captures value.
 
 ## Methodology
 
@@ -109,16 +126,19 @@ annual_savings = power_kW × peak_demand_charge_R$/kW/month × 12
 
 ```
 modo-energy-task/
-├── app.py                    # Streamlit dashboard
+├── app.py                       # Streamlit dashboard (4 tabs)
 ├── data/
-│   ├── __init__.py
-│   └── load_data.py          # ANEEL data download & processing
+│   ├── load_data.py             # ANEEL data download & processing
+│   ├── sample-tarifas.csv       # Bundled sample (14 distributors)
+│   └── py.typed
 ├── simulator/
-│   ├── __init__.py
-│   └── bess_model.py         # BESS financial model
+│   ├── bess_model.py            # BESS financial model
+│   └── py.typed
+├── tests/
+│   └── test_bess_model.py       # 54 tests covering all model functions
+├── Makefile                     # make install / run / test
 ├── requirements.txt
-├── .streamlit/config.toml    # Dashboard theme
-├── .gitignore
+├── .streamlit/config.toml       # Dark theme (brasilbess.com design)
 └── README.md
 ```
 
@@ -130,13 +150,14 @@ This project was built using **Claude Code (Claude Opus 4.6)** as a collaborativ
 - **Data engineering**: Identified the ANEEL Open Data source, analyzed the data dictionary, designed the processing pipeline (encoding, decimal format, seasonal normalization, latest-resolution filtering)
 - **Financial modeling**: Structured the BESS revenue model with two value streams (energy arbitrage + demand reduction), including degradation curves and sensitivity analysis
 - **Dashboard development**: Full Streamlit application with Plotly charts, interactive parameters, and market context
+- **Testing**: 54 pytest tests with hand-verified arithmetic covering all model functions
 - **Quality assurance**: Validated outputs against known distributor tariffs and industry benchmarks
 
 AI was used to accelerate development while domain expertise (energy engineering, Brazilian regulatory knowledge) guided every architectural and analytical decision.
 
 ## Author
 
-**Filip Osanai** — Energy Engineer | [brasilbess.com](https://brasilbess.com)
+**Filipe Osanai** — Energy Engineer | [brasilbess.com](https://brasilbess.com)
 
 ## Built With
 
