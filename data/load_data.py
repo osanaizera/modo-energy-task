@@ -13,6 +13,7 @@ from pathlib import Path
 
 DATA_DIR = Path(__file__).parent
 RAW_FILE = DATA_DIR / "tarifas-raw.csv"
+SAMPLE_FILE = DATA_DIR / "sample-tarifas.csv"
 
 ANEEL_URL = (
     "https://dadosabertos.aneel.gov.br/dataset/"
@@ -35,7 +36,7 @@ POST_MAP = {
 }
 
 
-def download_if_needed():
+def download_if_needed() -> None:
     """Download tariff CSV from ANEEL if not already cached locally."""
     if RAW_FILE.exists():
         return
@@ -46,6 +47,17 @@ def download_if_needed():
         for chunk in resp.iter_content(chunk_size=1 << 16):
             f.write(chunk)
     print("Download complete.")
+
+
+def _resolve_data_file() -> Path:
+    """Return the best available data file (full download or bundled sample)."""
+    if RAW_FILE.exists():
+        return RAW_FILE
+    if SAMPLE_FILE.exists():
+        return SAMPLE_FILE
+    # Neither exists — download the full dataset
+    download_if_needed()
+    return RAW_FILE
 
 
 def load_processed_data() -> pd.DataFrame:
@@ -60,9 +72,9 @@ def load_processed_data() -> pd.DataFrame:
     6. Normalize seasonal tariff posts
     7. Keep only latest resolution per distributor
     """
-    download_if_needed()
+    filepath = _resolve_data_file()
 
-    df = pd.read_csv(RAW_FILE, sep=";", encoding="latin-1", dtype=str)
+    df = pd.read_csv(filepath, sep=";", encoding="latin-1", dtype=str)
 
     # Parse numerics (Brazilian format: comma = decimal separator)
     for col in ("VlrTUSD", "VlrTE"):
