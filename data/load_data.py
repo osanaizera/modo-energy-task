@@ -50,14 +50,23 @@ def download_if_needed() -> None:
 
 
 def _resolve_data_file() -> Path:
-    """Return the best available data file (full download or bundled sample)."""
+    """Return the best available data file (full download or bundled sample).
+
+    Always tries to download the full ANEEL dataset first.
+    Falls back to bundled sample only if the download fails.
+    """
     if RAW_FILE.exists():
         return RAW_FILE
+    # Try downloading the full dataset
+    try:
+        download_if_needed()
+        return RAW_FILE
+    except Exception:
+        pass
+    # Fallback to sample if download failed
     if SAMPLE_FILE.exists():
         return SAMPLE_FILE
-    # Neither exists — download the full dataset
-    download_if_needed()
-    return RAW_FILE
+    raise FileNotFoundError("No tariff data available. Download failed and no sample file found.")
 
 
 def load_processed_data() -> pd.DataFrame:
